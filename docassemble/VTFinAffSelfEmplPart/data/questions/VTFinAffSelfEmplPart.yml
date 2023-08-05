@@ -1,0 +1,655 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: >-
+    813A Financial - self-employment worksheet
+  short title: >-
+    813AFinancial/self-empl
+  description: |-
+    This interview helps someone in Vermont fill and file an 813A financial affidavit in Vermont.
+  tags:
+    - "FA-04-00-00-00"
+    - "FA-05-00-00-00"
+    - "FA-06-00-00-00"
+  authors:
+    - VTCourtForms by Legal Services Vermont
+  original_form:
+    - https://vtlawhelp.org/cfp/fill-out-form-813a-financial-affidavit-income-and-expenses
+  help_page_url: >-
+    https://vtlawhelp.org/cfp/fill-out-form-813a-financial-affidavit-income-and-expenses
+  help_page_title: >-
+    VTLawHelp.org website
+  allowed_courts: []
+  typical_role: "plaintiff"
+  al_weaver_version: "1.10.1"
+  generated_on: "2023-08-05"
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "VT"
+---
+code: |
+  github_repo_name =  'docassemble-VTFinAffSelfEmplPart'
+---
+code: |
+  interview_short_title = "Fill and file an 813A financial affidavit in Vermont"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+objects:
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_vtfinaffselfemplpart: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_vtfinaffselfemplpart
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = []
+  nav.set_section("review_vtfinaffselfemplpart")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  Selfemployment_worksheet
+  self_empl_gross_sales_monthly_amount
+  self_empl_office_exp_amount
+  set_progress(20)
+  self_empl_auto_gas_amount
+  self_empl_pension_amount
+  self_emp_cleaning_amount
+  set_progress(40)
+  self_empl_bad_debt_amount
+  self_empl_insur_not_health1_amount
+  self_empl_other_exp1_descr
+  set_progress(60)
+  self_employed_expenses_monthly_amount
+  interview_order_vtfinaffselfemplpart = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  vtfinaffselfemplpart_intro
+  interview_order_vtfinaffselfemplpart
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  vtfinaffselfemplpart_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Financial_affidavit_selfemployment_worksheet
+continue button field: vtfinaffselfemplpart_intro
+question: |
+  813A Financial - self-employment worksheet
+subquestion: |
+  This interview will help you fill and file an 813A financial affidavit in Vermont.
+  
+  Before you get started, please gather:
+  
+  1. 
+  1. 
+  1. 
+  
+  When you are finished, you will need to:
+  
+  1. 
+  1. 
+  
+  Most people take about xx minutes to finish this interview.
+---
+id: Self employment worksheet
+question: |
+  Self-employment worksheet
+subquestion: |
+  This section is page 11 on the paper form.
+  Only fill it out if you have a self-employed business.
+continue button field: Selfemployment_worksheet
+---
+id: Your monthly gross sales or receipts
+question: |
+  Your monthly gross sales or receipts
+fields:
+  - "Gross sales": self_empl_gross_sales_monthly_amount
+    datatype: currency
+    min: 0
+---
+id: Your monthly business expenses
+question: |
+  Your monthly business expenses
+subquestion: |
+  Office expenses, CGS and equipment expenses
+fields:
+  - "Office expenses": self_empl_office_exp_amount
+    datatype: currency
+    min: 0
+  - "Cost of goods sold": self_empl_cgs_amount
+    datatype: currency
+    min: 0
+  - "Rent for your business location": self_empl_rent_amount
+    datatype: currency
+    min: 0
+  - "Equipment": self_empl_equip_amount
+    datatype: currency
+    min: 0
+  - "Other property": self_empl_other_property_amount
+    datatype: currency
+    min: 0
+  - "Repairs": self_empl_repairs_amount
+    datatype: currency
+    min: 0
+  - "Depletion": self_empl_depletion_amount
+    datatype: currency
+    min: 0
+  - "Supplies": self_empl_supplies_amount
+    datatype: currency
+    min: 0
+  - "Depreciation": self_empl_depreciation_amount
+    datatype: currency
+    min: 0
+  - "Utilities and phone": self_empl_utilities_amount
+    datatype: currency
+    min: 0
+  - "Interest paid on mortgage": self_empl_interest_paid_mort_amount
+    datatype: currency
+    min: 0
+---
+id: Auto travel and meal expenses
+question: |
+  Auto, travel and meal expenses
+fields:
+  - "Gas": self_empl_auto_gas_amount
+    datatype: currency
+    min: 0
+  - "Auto insurance": self_empl_auto_insur_amount
+    datatype: currency
+    min: 0
+  - "Auto maintenance": self_employed_auto_maint_amount
+    datatype: currency
+    min: 0
+  - "Auto registration": self_empl_auto_reg_amount
+    datatype: currency
+    min: 0
+  - "Auto expenses subtotal": self_empl_auto_subtotal_amount
+    datatype: currency
+    min: 0
+  - "Travel": self_empl_travel_amount
+    datatype: currency
+    min: 0
+  - "Meals and entertainment": self_empl_meals_amount
+    datatype: currency
+    min: 0
+---
+id: Wages and other employee expenses
+question: |
+  Wages and other employee expenses
+fields:
+  - "Pension": self_empl_pension_amount
+    datatype: currency
+    min: 0
+  - "Commissions": self_empl_commiss_amount
+    datatype: currency
+    min: 0
+  - "Employee benefit program": self_empl_employ_ben_prog_amount
+    datatype: currency
+    min: 0
+  - "Wages paid": self_empl_wages_paid_amount
+    datatype: currency
+    min: 0
+---
+id: Common business expenses
+question: |
+  Common business expenses
+fields:
+  - "Laundry and cleaning": self_emp_cleaning_amount
+    datatype: currency
+    min: 0
+  - "Advertising": self_empl_advertising_amount
+    datatype: currency
+    min: 0
+  - "Dues and publications": self_empl_dues_pubs_amount
+    datatype: currency
+    min: 0
+  - "Legal and professional fees": self_empl_legal_prof_amount
+    datatype: currency
+    min: 0
+---
+id: Bad debt taxes and other interest paid
+question: |
+  Bad debt, taxes and other interest paid
+fields:
+  - "Bad debt": self_empl_bad_debt_amount
+    datatype: currency
+    min: 0
+  - "Tax expenses": self_empl_taxes_amount
+    datatype: currency
+    min: 0
+  - "Other interest paid": self_empl_other_interest_paid_amount
+    datatype: currency
+    min: 0
+---
+id: Insurance that is not health insurance
+question: |
+  Insurance that is not health insurance
+fields:
+  - "Amount": self_empl_insur_not_health1_amount
+    datatype: currency
+    min: 0
+  - "Insurance that is not health": self_empl_insur_not_health1_descr
+    maxlength: 30
+  - "Insurance that is not health": self_empl_insur_not_health2_descr
+    maxlength: 30
+  - "Amount": self_empl_insur_not_health2_amount
+    datatype: currency
+    min: 0
+---
+id: Other expenses
+question: |
+  Other expenses?
+fields:
+  - "Other expense": self_empl_other_exp1_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp1_amount
+    datatype: currency
+    min: 0
+  - "Other expense": self_empl_other_exp2_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp2_amount
+    datatype: currency
+    min: 0
+  - "Other expense": self_empl_other_exp3_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp3_amount
+    datatype: currency
+    min: 0
+  - "Other expense": self_empl_other_exp4_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp4_amount
+    datatype: currency
+    min: 0
+  - "Amount": self_empl_other_exp5_amount
+    datatype: currency
+    min: 0
+  - "Other expense": self_empl_other_exp5_descr
+    maxlength: 24
+  - "Other expense": self_empl_other_exp6_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp6_amount
+    datatype: currency
+    min: 0
+  - "Other expense": self_empl_other_exp7_descr
+    maxlength: 24
+  - "Amount": self_empl_other_exp7_amount
+    datatype: currency
+    min: 0
+  - "Other expenses subtotal": self_empl_other_exp1_subtotal_amount
+    datatype: currency
+    min: 0
+---
+id: Your monthly expenses total and your net income from self employment
+question: |
+  Your monthly expenses total and your net income from self-employment
+fields:
+  - "Self-employed monthly expenses total": self_employed_expenses_monthly_amount
+    datatype: currency
+    min: 0
+  - "Self-employed monthly net income": self_employed_net_income_monthly_amount
+    datatype: currency
+    min: 0
+---
+id: preview vtfinaffselfemplpart
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_vtfinaffselfemplpart'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: vtfinaffselfemplpart_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: vtfinaffselfemplpart review screen
+event: review_vtfinaffselfemplpart
+question: |
+  Review your answers
+review:
+  - Edit: self_empl_gross_sales_monthly_amount
+    button: |
+      **Gross sales**:
+      ${ currency(self_empl_gross_sales_monthly_amount) }
+  - Edit: self_empl_office_exp_amount
+    button: |
+      **Office expenses**:
+      ${ currency(self_empl_office_exp_amount) }
+  - Edit: self_empl_cgs_amount
+    button: |
+      **Cost of goods sold**:
+      ${ currency(self_empl_cgs_amount) }
+  - Edit: self_emp_cleaning_amount
+    button: |
+      **Laundry and cleaning**:
+      ${ currency(self_emp_cleaning_amount) }
+  - Edit: self_empl_advertising_amount
+    button: |
+      **Advertising**:
+      ${ currency(self_empl_advertising_amount) }
+  - Edit: self_empl_bad_debt_amount
+    button: |
+      **Bad debt**:
+      ${ currency(self_empl_bad_debt_amount) }
+  - Edit: self_empl_pension_amount
+    button: |
+      **Pension**:
+      ${ currency(self_empl_pension_amount) }
+  - Edit: self_empl_auto_gas_amount
+    button: |
+      **Gas**:
+      ${ currency(self_empl_auto_gas_amount) }
+  - Edit: self_empl_auto_insur_amount
+    button: |
+      **Auto insurance**:
+      ${ currency(self_empl_auto_insur_amount) }
+  - Edit: self_empl_rent_amount
+    button: |
+      **Rent for your business location**:
+      ${ currency(self_empl_rent_amount) }
+  - Edit: self_employed_auto_maint_amount
+    button: |
+      **Auto maintenance**:
+      ${ currency(self_employed_auto_maint_amount) }
+  - Edit: self_empl_auto_reg_amount
+    button: |
+      **Auto registration**:
+      ${ currency(self_empl_auto_reg_amount) }
+  - Edit: self_empl_equip_amount
+    button: |
+      **Equipment**:
+      ${ currency(self_empl_equip_amount) }
+  - Edit: self_empl_other_property_amount
+    button: |
+      **Other property**:
+      ${ currency(self_empl_other_property_amount) }
+  - Edit: self_empl_auto_subtotal_amount
+    button: |
+      **Auto expenses subtotal**:
+      ${ currency(self_empl_auto_subtotal_amount) }
+  - Edit: self_empl_repairs_amount
+    button: |
+      **Repairs**:
+      ${ currency(self_empl_repairs_amount) }
+  - Edit: self_empl_commiss_amount
+    button: |
+      **Commissions**:
+      ${ currency(self_empl_commiss_amount) }
+  - Edit: self_empl_depletion_amount
+    button: |
+      **Depletion**:
+      ${ currency(self_empl_depletion_amount) }
+  - Edit: self_empl_supplies_amount
+    button: |
+      **Supplies**:
+      ${ currency(self_empl_supplies_amount) }
+  - Edit: self_empl_taxes_amount
+    button: |
+      **Tax expenses**:
+      ${ currency(self_empl_taxes_amount) }
+  - Edit: self_empl_depreciation_amount
+    button: |
+      **Depreciation**:
+      ${ currency(self_empl_depreciation_amount) }
+  - Edit: self_empl_travel_amount
+    button: |
+      **Travel**:
+      ${ currency(self_empl_travel_amount) }
+  - Edit: self_empl_dues_pubs_amount
+    button: |
+      **Dues and publications**:
+      ${ currency(self_empl_dues_pubs_amount) }
+  - Edit: self_empl_meals_amount
+    button: |
+      **Meals and entertainment**:
+      ${ currency(self_empl_meals_amount) }
+  - Edit: self_empl_employ_ben_prog_amount
+    button: |
+      **Employee benefit program**:
+      ${ currency(self_empl_employ_ben_prog_amount) }
+  - Edit: self_empl_insur_not_health1_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_insur_not_health1_amount) }
+  - Edit: self_empl_insur_not_health1_descr
+    button: |
+      **Insurance that is not health**:
+      ${ self_empl_insur_not_health1_descr }
+  - Edit: self_empl_utilities_amount
+    button: |
+      **Utilities and phone**:
+      ${ currency(self_empl_utilities_amount) }
+  - Edit: self_empl_insur_not_health2_descr
+    button: |
+      **Insurance that is not health**:
+      ${ self_empl_insur_not_health2_descr }
+  - Edit: self_empl_wages_paid_amount
+    button: |
+      **Wages paid**:
+      ${ currency(self_empl_wages_paid_amount) }
+  - Edit: self_empl_insur_not_health2_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_insur_not_health2_amount) }
+  - Edit: self_empl_other_exp1_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp1_descr }
+  - Edit: self_empl_other_exp1_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp1_amount) }
+  - Edit: self_empl_interest_paid_mort_amount
+    button: |
+      **Interest paid on mortgage**:
+      ${ currency(self_empl_interest_paid_mort_amount) }
+  - Edit: self_empl_other_exp2_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp2_descr }
+  - Edit: self_empl_other_exp2_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp2_amount) }
+  - Edit: self_empl_other_exp3_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp3_descr }
+  - Edit: self_empl_other_exp3_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp3_amount) }
+  - Edit: self_empl_other_interest_paid_amount
+    button: |
+      **Other interest paid**:
+      ${ currency(self_empl_other_interest_paid_amount) }
+  - Edit: self_empl_other_exp4_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp4_descr }
+  - Edit: self_empl_other_exp4_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp4_amount) }
+  - Edit: self_empl_other_exp5_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp5_amount) }
+  - Edit: self_empl_other_exp5_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp5_descr }
+  - Edit: self_empl_legal_prof_amount
+    button: |
+      **Legal and professional fees**:
+      ${ currency(self_empl_legal_prof_amount) }
+  - Edit: self_empl_other_exp6_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp6_descr }
+  - Edit: self_empl_other_exp6_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp6_amount) }
+  - Edit: self_empl_other_exp7_descr
+    button: |
+      **Other expense**:
+      ${ self_empl_other_exp7_descr }
+  - Edit: self_empl_other_exp7_amount
+    button: |
+      **Amount**:
+      ${ currency(self_empl_other_exp7_amount) }
+  - Edit: self_empl_other_exp1_subtotal_amount
+    button: |
+      **Other expenses subtotal**:
+      ${ currency(self_empl_other_exp1_subtotal_amount) }
+  - Edit: self_employed_expenses_monthly_amount
+    button: |
+      **Self-employed monthly expenses total**:
+      ${ currency(self_employed_expenses_monthly_amount) }
+  - Edit: self_employed_net_income_monthly_amount
+    button: |
+      **Self-employed monthly net income**:
+      ${ currency(self_employed_net_income_monthly_amount) }
+---
+id: download vtfinaffselfemplpart
+event: vtfinaffselfemplpart_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_vtfinaffselfemplpart'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - vtfinaffselfemplpart_Post_interview_instructions: ALDocument.using(title="Instructions", filename="a6finaffweaverselfemplpart_next_steps.docx", enabled=True, has_addendum=False)
+  - vtfinaffselfemplpart_attachment: ALDocument.using(title="813A Financial - self-employment worksheet", filename="vtfinaffselfemplpart", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[vtfinaffselfemplpart_Post_interview_instructions, vtfinaffselfemplpart_attachment], filename="vtfinaffselfemplpart", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[vtfinaffselfemplpart_attachment],  filename="vtfinaffselfemplpart", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: vtfinaffselfemplpart_next_steps
+  docx template file: a6finaffweaverselfemplpart_next_steps.docx
+  variable name: vtfinaffselfemplpart_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: vtfinaffselfemplpart
+  filename: vtfinaffselfemplpart
+  variable name: vtfinaffselfemplpart_attachment[i]
+  skip undefined: True
+  pdf template file: a6finaffweaverselfemplpart.pdf
+  fields:
+      - "self_empl_gross_sales_monthly_amount": ${ currency(self_empl_gross_sales_monthly_amount) }
+      - "self_empl_office_exp_amount": ${ currency(self_empl_office_exp_amount) }
+      - "self_empl_cgs_amount": ${ currency(self_empl_cgs_amount) }
+      - "self_emp_cleaning_amount": ${ currency(self_emp_cleaning_amount) }
+      - "self_empl_advertising_amount": ${ currency(self_empl_advertising_amount) }
+      - "self_empl_bad_debt_amount": ${ currency(self_empl_bad_debt_amount) }
+      - "self_empl_pension_amount": ${ currency(self_empl_pension_amount) }
+      - "self_empl_auto_gas_amount": ${ currency(self_empl_auto_gas_amount) }
+      - "self_empl_auto_insur_amount": ${ currency(self_empl_auto_insur_amount) }
+      - "self_empl_rent_amount": ${ currency(self_empl_rent_amount) }
+      - "self_employed_auto_maint_amount": ${ currency(self_employed_auto_maint_amount) }
+      - "self_empl_auto_reg_amount": ${ currency(self_empl_auto_reg_amount) }
+      - "self_empl_equip_amount": ${ currency(self_empl_equip_amount) }
+      - "self_empl_other_property_amount": ${ currency(self_empl_other_property_amount) }
+      - "self_empl_auto_subtotal_amount": ${ currency(self_empl_auto_subtotal_amount) }
+      - "self_empl_repairs_amount": ${ currency(self_empl_repairs_amount) }
+      - "self_empl_commiss_amount": ${ currency(self_empl_commiss_amount) }
+      - "self_empl_depletion_amount": ${ currency(self_empl_depletion_amount) }
+      - "self_empl_supplies_amount": ${ currency(self_empl_supplies_amount) }
+      - "self_empl_taxes_amount": ${ currency(self_empl_taxes_amount) }
+      - "self_empl_depreciation_amount": ${ currency(self_empl_depreciation_amount) }
+      - "self_empl_travel_amount": ${ currency(self_empl_travel_amount) }
+      - "self_empl_dues_pubs_amount": ${ currency(self_empl_dues_pubs_amount) }
+      - "self_empl_meals_amount": ${ currency(self_empl_meals_amount) }
+      - "self_empl_employ_ben_prog_amount": ${ currency(self_empl_employ_ben_prog_amount) }
+      - "self_empl_insur_not_health1_amount": ${ currency(self_empl_insur_not_health1_amount) }
+      - "self_empl_insur_not_health1_descr": ${ self_empl_insur_not_health1_descr }
+      - "self_empl_utilities_amount": ${ currency(self_empl_utilities_amount) }
+      - "self_empl_insur_not_health2_descr": ${ self_empl_insur_not_health2_descr }
+      - "self_empl_wages_paid_amount": ${ currency(self_empl_wages_paid_amount) }
+      - "self_empl_insur_not_health2_amount": ${ currency(self_empl_insur_not_health2_amount) }
+      - "self_empl_other_exp1_descr": ${ self_empl_other_exp1_descr }
+      - "self_empl_other_exp1_amount": ${ currency(self_empl_other_exp1_amount) }
+      - "self_empl_interest_paid_mort_amount": ${ currency(self_empl_interest_paid_mort_amount) }
+      - "self_empl_other_exp2_descr": ${ self_empl_other_exp2_descr }
+      - "self_empl_other_exp2_amount": ${ currency(self_empl_other_exp2_amount) }
+      - "self_empl_other_exp3_descr": ${ self_empl_other_exp3_descr }
+      - "self_empl_other_exp3_amount": ${ currency(self_empl_other_exp3_amount) }
+      - "self_empl_other_interest_paid_amount": ${ currency(self_empl_other_interest_paid_amount) }
+      - "self_empl_other_exp4_descr": ${ self_empl_other_exp4_descr }
+      - "self_empl_other_exp4_amount": ${ currency(self_empl_other_exp4_amount) }
+      - "self_empl_other_exp5_amount": ${ currency(self_empl_other_exp5_amount) }
+      - "self_empl_other_exp5_descr": ${ self_empl_other_exp5_descr }
+      - "self_empl_legal_prof_amount": ${ currency(self_empl_legal_prof_amount) }
+      - "self_empl_other_exp6_descr": ${ self_empl_other_exp6_descr }
+      - "self_empl_other_exp6_amount": ${ currency(self_empl_other_exp6_amount) }
+      - "self_empl_other_exp7_descr": ${ self_empl_other_exp7_descr }
+      - "self_empl_other_exp7_amount": ${ currency(self_empl_other_exp7_amount) }
+      - "self_empl_other_exp1_subtotal_amount": ${ currency(self_empl_other_exp1_subtotal_amount) }
+      - "self_employed_expenses_monthly_amount": ${ currency(self_employed_expenses_monthly_amount) }
+      - "self_employed_net_income_monthly_amount": ${ currency(self_employed_net_income_monthly_amount) }
+
+
+
