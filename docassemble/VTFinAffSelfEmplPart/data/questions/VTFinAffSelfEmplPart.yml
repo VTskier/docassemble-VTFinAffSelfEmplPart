@@ -3,6 +3,15 @@ include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
 ---
+features:
+  css: style.css
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="LSV_bug.png")
+---
+images:
+  big_logo: LSV_logo.png 
+---
 metadata:
   title: >-
     813A Financial - self-employment worksheet
@@ -62,17 +71,18 @@ code: |
   user_ask_role = "plaintiff"
   Selfemployment_worksheet
   self_empl_gross_sales_monthly_amount
-  self_empl_office_exp_amount
+  self_empl_cgs_amount
+  self_empl_rent_amount
   set_progress(20)
-  self_empl_auto_gas_amount
-  self_empl_pension_amount
-  self_emp_cleaning_amount
+  self_empl_wages_paid_amount
+  self_empl_auto_insur_amount
+  self_empl_advertising_amount
   set_progress(40)
+  self_empl_insur_not_health1_descr
   self_empl_bad_debt_amount
-  self_empl_insur_not_health1_amount
   self_empl_other_exp1_descr
   set_progress(60)
-  self_employed_expenses_monthly_amount
+  net_income
   interview_order_vtfinaffselfemplpart = True
 ---
 ###################### Main order ######################
@@ -84,15 +94,15 @@ code: |
   al_intro_screen
   vtfinaffselfemplpart_intro
   interview_order_vtfinaffselfemplpart
-  signature_date
+  #signature_date
   # Store anonymous data for analytics / statistics
-  store_variables_snapshot(
-      persistent=True,
-      data={
-          "zip": showifdef("users[0].address.zip"),
-          "reached_interview_end": True,
-      },
-  )
+  #store_variables_snapshot(
+      #persistent=True,
+      #data={
+          #"zip": showifdef("users[0].address.zip"),
+          #"reached_interview_end": True,
+      #},
+  #)
   vtfinaffselfemplpart_download
 ---
 comment: |
@@ -127,194 +137,265 @@ continue button field: Selfemployment_worksheet
 ---
 id: Your monthly gross sales or receipts
 question: |
-  Your monthly gross sales or receipts
+  Your monthly gross sales or receipts from self-employment
 fields:
   - "Gross sales": self_empl_gross_sales_monthly_amount
     datatype: currency
     min: 0
 ---
-id: Your monthly business expenses
+id: Cost of goods sold
 question: |
-  Your monthly business expenses
+  Monthly business expenses from self-employment
 subquestion: |
-  Office expenses, CGS and equipment expenses
+  Cost of goods sold
 fields:
-  - "Office expenses": self_empl_office_exp_amount
-    datatype: currency
-    min: 0
   - "Cost of goods sold": self_empl_cgs_amount
     datatype: currency
     min: 0
+    required: false
+---
+id: Office and equipment expenses
+question: |
+  Monthly business expenses from self-employment
+subquestion: |
+  Office and equipment expenses
+fields:
   - "Rent for your business location": self_empl_rent_amount
     datatype: currency
     min: 0
+    required: false
+  - "Interest paid on mortgage if you own your business location": self_empl_interest_paid_mort_amount
+    datatype: currency
+    min: 0
+    required: false
   - "Equipment": self_empl_equip_amount
     datatype: currency
     min: 0
-  - "Other property": self_empl_other_property_amount
-    datatype: currency
-    min: 0
-  - "Repairs": self_empl_repairs_amount
-    datatype: currency
-    min: 0
-  - "Depletion": self_empl_depletion_amount
-    datatype: currency
-    min: 0
-  - "Supplies": self_empl_supplies_amount
-    datatype: currency
-    min: 0
+    required: false
   - "Depreciation": self_empl_depreciation_amount
     datatype: currency
     min: 0
+    required: false
+  - "Other property": self_empl_other_property_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Repairs": self_empl_repairs_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Depletion": self_empl_depletion_amount
+    datatype: currency
+    min: 0
+    required: false
   - "Utilities and phone": self_empl_utilities_amount
     datatype: currency
     min: 0
-  - "Interest paid on mortgage": self_empl_interest_paid_mort_amount
+    required: false  
+  - "Office expenses": self_empl_office_exp_amount
     datatype: currency
     min: 0
----
-id: Auto travel and meal expenses
-question: |
-  Auto, travel and meal expenses
-fields:
-  - "Gas": self_empl_auto_gas_amount
+    required: false
+  - "Supplies": self_empl_supplies_amount
     datatype: currency
     min: 0
-  - "Auto insurance": self_empl_auto_insur_amount
-    datatype: currency
-    min: 0
-  - "Auto maintenance": self_employed_auto_maint_amount
-    datatype: currency
-    min: 0
-  - "Auto registration": self_empl_auto_reg_amount
-    datatype: currency
-    min: 0
-  - "Auto expenses subtotal": self_empl_auto_subtotal_amount
-    datatype: currency
-    min: 0
-  - "Travel": self_empl_travel_amount
-    datatype: currency
-    min: 0
-  - "Meals and entertainment": self_empl_meals_amount
-    datatype: currency
-    min: 0
+    required: false
 ---
 id: Wages and other employee expenses
 question: |
+  Monthly business expenses from self-employment
+subquestion: |
   Wages and other employee expenses
 fields:
-  - "Pension": self_empl_pension_amount
-    datatype: currency
-    min: 0
-  - "Commissions": self_empl_commiss_amount
-    datatype: currency
-    min: 0
-  - "Employee benefit program": self_empl_employ_ben_prog_amount
-    datatype: currency
-    min: 0
   - "Wages paid": self_empl_wages_paid_amount
     datatype: currency
     min: 0
----
-id: Common business expenses
-question: |
-  Common business expenses
-fields:
-  - "Laundry and cleaning": self_emp_cleaning_amount
+    required: false
+  - "Commissions paid": self_empl_commiss_amount
     datatype: currency
     min: 0
+    required: false
+  - "Employee benefit programs": self_empl_employ_ben_prog_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Pension": self_empl_pension_amount
+    datatype: currency
+    min: 0
+    required: false
+---
+id: Auto travel and meal expenses
+question: |
+  Monthly business expenses from self-employment
+subquestion: |
+  Auto, travel and meal expenses
+fields:
+  - "Auto insurance": self_empl_auto_insur_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Auto maintenance": self_employed_auto_maint_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Auto registration": self_empl_auto_reg_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Gas": self_empl_auto_gas_amount
+    datatype: currency
+    min: 0
+    required: false
+#  - "Auto expenses subtotal": self_empl_auto_subtotal_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+  - "Travel": self_empl_travel_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Meals and entertainment": self_empl_meals_amount
+    datatype: currency
+    min: 0
+    required: false
+---
+id: Other common business expenses
+question: |
+  Monthly business expenses from self-employment
+subquestion: |
+  Other common business expenses
+fields:
   - "Advertising": self_empl_advertising_amount
     datatype: currency
     min: 0
+    required: false
   - "Dues and publications": self_empl_dues_pubs_amount
     datatype: currency
     min: 0
+    required: false
   - "Legal and professional fees": self_empl_legal_prof_amount
     datatype: currency
     min: 0
----
-id: Bad debt taxes and other interest paid
-question: |
-  Bad debt, taxes and other interest paid
-fields:
-  - "Bad debt": self_empl_bad_debt_amount
+    required: false
+  - "Laundry and cleaning": self_emp_cleaning_amount
     datatype: currency
     min: 0
-  - "Tax expenses": self_empl_taxes_amount
-    datatype: currency
-    min: 0
-  - "Other interest paid": self_empl_other_interest_paid_amount
-    datatype: currency
-    min: 0
+    required: false
 ---
 id: Insurance that is not health insurance
 question: |
-  Insurance that is not health insurance
+  Monthly business expenses from self-employment
+subquestion: |
+  Insurance expense that is not health insurance
 fields:
+  - "Describe the insurance": self_empl_insur_not_health1_descr
+    maxlength: 30
+    required: false
   - "Amount": self_empl_insur_not_health1_amount
     datatype: currency
     min: 0
-  - "Insurance that is not health": self_empl_insur_not_health1_descr
+    required: false
+  - "Describe the insurance": self_empl_insur_not_health2_descr
     maxlength: 30
-  - "Insurance that is not health": self_empl_insur_not_health2_descr
-    maxlength: 30
+    required: false
   - "Amount": self_empl_insur_not_health2_amount
     datatype: currency
     min: 0
+    required: false
+---
+id: Bad debt taxes and other interest paid
+question: |
+  Monthly business expenses from self-employment
+subquestion: |
+  Bad debt, taxes and other interest paid
+fields:
+  - "Tax expenses": self_empl_taxes_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Other interest paid": self_empl_other_interest_paid_amount
+    datatype: currency
+    min: 0
+    required: false
+  - "Bad debt": self_empl_bad_debt_amount
+    datatype: currency
+    min: 0
+    required: false
 ---
 id: Other expenses
 question: |
+  Monthly business expenses from self-employment
+subquestion: |
   Other expenses?
 fields:
-  - "Other expense": self_empl_other_exp1_descr
+  - "Do you have another business expense to describe?": self_empl_another_expense
+    datatype: yesnoradio
+  - "Describe the expense in a word or two": self_empl_other_exp1_descr
     maxlength: 24
+    show if: self_empl_another_expense
+    required: false    
   - "Amount": self_empl_other_exp1_amount
     datatype: currency
     min: 0
+    show if: self_empl_another_expense
   - "Other expense": self_empl_other_exp2_descr
     maxlength: 24
+    required: false
   - "Amount": self_empl_other_exp2_amount
     datatype: currency
     min: 0
+    required: false
   - "Other expense": self_empl_other_exp3_descr
     maxlength: 24
+    required: false
   - "Amount": self_empl_other_exp3_amount
     datatype: currency
     min: 0
+    required: false
   - "Other expense": self_empl_other_exp4_descr
     maxlength: 24
+    required: false
   - "Amount": self_empl_other_exp4_amount
     datatype: currency
     min: 0
+    required: false
   - "Amount": self_empl_other_exp5_amount
     datatype: currency
     min: 0
+    required: false
   - "Other expense": self_empl_other_exp5_descr
     maxlength: 24
+    required: false
   - "Other expense": self_empl_other_exp6_descr
     maxlength: 24
+    required: false
   - "Amount": self_empl_other_exp6_amount
     datatype: currency
     min: 0
+    required: false
   - "Other expense": self_empl_other_exp7_descr
     maxlength: 24
+    required: false
   - "Amount": self_empl_other_exp7_amount
     datatype: currency
     min: 0
+    required: false
   - "Other expenses subtotal": self_empl_other_exp1_subtotal_amount
     datatype: currency
     min: 0
+    required: false
 ---
 id: Your monthly expenses total and your net income from self employment
 question: |
-  Your monthly expenses total and your net income from self-employment
-fields:
-  - "Self-employed monthly expenses total": self_employed_expenses_monthly_amount
-    datatype: currency
-    min: 0
-  - "Self-employed monthly net income": self_employed_net_income_monthly_amount
-    datatype: currency
-    min: 0
+  Self-employment: Here are your total monthly expenses and your net income from self-employment
+continue button field: net_income
+#fields:
+#  - "Self-employed monthly expenses total": self_employed_expenses_monthly_amount
+#    datatype: currency
+#    min: 0
+#  - "Self-employed monthly net income": self_employed_net_income_monthly_amount
+#    datatype: currency
+#    min: 0
 ---
 id: preview vtfinaffselfemplpart
 question: |
@@ -339,8 +420,8 @@ code: |
   # This is a placeholder for the addresses that will be searched
   # for matching address to court. Edit if court venue is based on 
   # a different address than the user's
-  [user.address.address for user in users.complete_elements()]
-  addresses_to_search = [user.address for user in users.complete_elements()]
+  #[user.address.address for user in users.complete_elements()]
+  #addresses_to_search = [user.address for user in users.complete_elements()]
 ---
 id: vtfinaffselfemplpart review screen
 event: review_vtfinaffselfemplpart
@@ -557,7 +638,8 @@ event: vtfinaffselfemplpart_download
 question: |
   All done
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
+  
+  Your form is ready to download and deliver.
   
   View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
 
