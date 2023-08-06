@@ -80,7 +80,7 @@ code: |
   set_progress(40)
   self_empl_insur_not_health1_descr
   self_empl_bad_debt_amount
-  self_empl_another_expense
+  self_empl_other_expense.gather()
   set_progress(60)
   net_income
   interview_order_vtfinaffselfemplpart = True
@@ -125,7 +125,7 @@ id: Cost of goods sold
 question: |
   Monthly business expenses from self-employment
 subquestion: |
-  Cost of goods sold
+  Now we'll collect your monthly expenses from self-employment.
 fields:
   - "Cost of goods sold": self_empl_cgs_amount
     datatype: currency
@@ -300,68 +300,107 @@ fields:
     min: 0
     required: false
 ---
-id: Other expenses
+objects:
+  - self_empl_other_expense: DAList.using(object_type=DAObject, complete_attribute="amount")
+---
+id: Gather other expenses
 question: |
   Monthly business expenses from self-employment
 subquestion: |
-  Other expenses?
+  Other expenses
 fields:
-  - "Do you have another business expense to describe?": self_empl_another_expense
+  - "Do you have another business expense to describe?": self_empl_other_expense.there_are_any
     datatype: yesnoradio
-  - "Describe the expense in a word or two": self_empl_other_exp1_descr
-    maxlength: 24
-    show if: self_empl_another_expense
-    required: false    
-  - "Amount paid per month": self_empl_other_exp1_amount
+    input type: radio
+    choices:
+      - Yes: True
+      - No: False
+---
+id: List of other expenses
+question: |
+  List of other expenses
+subquestion: |
+  We'll create a list of the other expenses -- one at a time.
+fields:
+  - Describe the expense in a word or two: self_empl_other_expense[i].description
+    maxlength: 20
+  - How much is the expense each month?: self_empl_other_expense[i].amount
     datatype: currency
     min: 0
-    show if: self_empl_another_expense
-  - "Other expense": self_empl_other_exp2_descr
-    maxlength: 24
-    required: false
-  - "Amount": self_empl_other_exp2_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Other expense": self_empl_other_exp3_descr
-    maxlength: 24
-    required: false
-  - "Amount": self_empl_other_exp3_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Other expense": self_empl_other_exp4_descr
-    maxlength: 24
-    required: false
-  - "Amount": self_empl_other_exp4_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Amount": self_empl_other_exp5_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Other expense": self_empl_other_exp5_descr
-    maxlength: 24
-    required: false
-  - "Other expense": self_empl_other_exp6_descr
-    maxlength: 24
-    required: false
-  - "Amount": self_empl_other_exp6_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Other expense": self_empl_other_exp7_descr
-    maxlength: 24
-    required: false
-  - "Amount": self_empl_other_exp7_amount
-    datatype: currency
-    min: 0
-    required: false
-  - "Other expenses subtotal": self_empl_other_exp1_subtotal_amount
-    datatype: currency
-    min: 0
-    required: false
+---
+id: Another expense
+question: |
+  List of other expenses
+subquestion: |
+  You have told us about these:
+  
+  % for item in self_empl_other_expense:
+    * ${ item.description }
+  % endfor
+fields:
+  - Are there any other expenses?: self_empl_other_expense.there_is_another
+    input type: radio
+    choices:
+      - Yes: True
+      - No: False
+---
+
+#  - "Do you have another business expense to describe?": self_empl_other_expense.there_are_any
+#    datatype: yesnoradio
+#  - "Describe the expense in a word or two": self_empl_other_exp.descr[0]
+#    maxlength: 24
+#    show if: self_empl_other_expense.there_are_any
+#    required: false    
+#  - "Amount paid per month": self_empl_other_exp.amount[0]
+#    datatype: currency
+#    min: 0
+#    show if: self_empl_another_expense.there_are_any
+#  - "Other expense": self_empl_other_exp2_descr
+#    maxlength: 24
+#    required: false
+#  - "Amount": self_empl_other_exp2_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Other expense": self_empl_other_exp3_descr
+#    maxlength: 24
+#    required: false
+#  - "Amount": self_empl_other_exp3_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Other expense": self_empl_other_exp4_descr
+#    maxlength: 24
+#    required: false
+#  - "Amount": self_empl_other_exp4_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Amount": self_empl_other_exp5_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Other expense": self_empl_other_exp5_descr
+#    maxlength: 24
+#    required: false
+#  - "Other expense": self_empl_other_exp6_descr
+#    maxlength: 24
+#    required: false
+#  - "Amount": self_empl_other_exp6_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Other expense": self_empl_other_exp7_descr
+#    maxlength: 24
+#    required: false
+#  - "Amount": self_empl_other_exp7_amount
+#    datatype: currency
+#    min: 0
+#    required: false
+#  - "Other expenses subtotal": self_empl_other_exp1_subtotal_amount
+#    datatype: currency
+#    min: 0
+#    required: false
 ---
 id: Your net income from self employment
 continue button field: net_income
@@ -369,41 +408,31 @@ question: |
   Net income from self-employment 
 subquestion: |
 
-  We've added up the amounts you entered to figure out your net income from self employment.
+  We've added up the amounts you entered to figure out your net income from self employment. Use the Review your answers button to edit any of these amounts. WHEN I DID THAT, THE TOTALS ON THIS PAGE DID NOT CHANGE!
+  <hr>
+  Cost of goods sold: ${ currency(self_empl_cgs_amount) }
   
-  Cost of goods sold
+  Office and equipment expenses: ${ currency(self_empl_office_equipment_expenses ) }
   
-  ${ currency(self_empl_cgs_amount) }
+  Wages and other employee expenses:
   
-  Office and equipment expenses
+  Auto, travel and meal expenses:
   
-  ${ currency(self_empl_office_equipment_expenses ) }
+  Other common business expenses:
   
-  Wages and other employee expenses
+  Insurance (not health insurance) expenses:
   
-  Auto, travel and meal expenses
+  Bad debt, taxes and other interest expenses:
   
-  Other common business expenses
+  Other expenses:
   
-  Insurance that is not health insurance
-  
-  Bad debt, taxes and other interest paid
-  
-  Other expenses
-  
-  **Total monthly expenses**
-  
-  ${ currency(self_employed_expenses_monthly_amount) }
+  **Total monthly expenses**: ${ currency(self_employed_expenses_monthly_amount) }
   <hr>
   
-  **Gross monthly sales**
-  
-  ${ currency(self_empl_gross_sales_monthly_amount) }
+  **Gross monthly sales**: ${ currency(self_empl_gross_sales_monthly_amount) }
   <hr>  
   
-  **Your monthly net income**
-  
-  ${ currency(self_employed_net_income_monthly_amount) }
+  **Your monthly net income**: ${ currency(self_employed_net_income_monthly_amount) }
 
 ---
 mandatory: True
@@ -594,14 +623,14 @@ review:
     button: |
       **Amount**:
       ${ currency(self_empl_insur_not_health2_amount) }
-  - Edit: self_empl_other_exp1_descr
+  - Edit: self_empl_other_expense[0].description
     button: |
       **Other expense**:
-      ${ self_empl_other_exp1_descr }
-  - Edit: self_empl_other_exp1_amount
+      ${ self_empl_other_expense[0].description }
+  - Edit: self_empl_other_expense[0].amount
     button: |
       **Amount**:
-      ${ currency(self_empl_other_exp1_amount) }
+      ${ currency(self_empl_other_expense[0].amount) }
   - Edit: self_empl_interest_paid_mort_amount
     button: |
       **Interest paid on mortgage**:
@@ -754,14 +783,14 @@ attachment:
       - "self_empl_insur_not_health2_descr": ${ self_empl_insur_not_health2_descr }
       - "self_empl_wages_paid_amount": ${ currency(self_empl_wages_paid_amount) }
       - "self_empl_insur_not_health2_amount": ${ currency(self_empl_insur_not_health2_amount) }
-      - "self_empl_other_exp1_descr": ${ self_empl_other_exp1_descr }
-      - "self_empl_other_exp1_amount": ${ currency(self_empl_other_exp1_amount) }
+      - "self_empl_other_interest_paid_amount": ${ currency(self_empl_other_interest_paid_amount) }
       - "self_empl_interest_paid_mort_amount": ${ currency(self_empl_interest_paid_mort_amount) }
-      - "self_empl_other_exp2_descr": ${ self_empl_other_exp2_descr }
-      - "self_empl_other_exp2_amount": ${ currency(self_empl_other_exp2_amount) }
+      - "self_empl_other_exp1_descr": ${ self_empl_other_expense[0].description }
+      - "self_empl_other_exp1_amount": ${ currency(self_empl_other_expense[0].amount) }
+      - "self_empl_other_exp2_descr": ${ self_empl_other_expense[1].description }
+      - "self_empl_other_exp2_amount": ${ currency(self_empl_other_expense[1].amount) }
       - "self_empl_other_exp3_descr": ${ self_empl_other_exp3_descr }
       - "self_empl_other_exp3_amount": ${ currency(self_empl_other_exp3_amount) }
-      - "self_empl_other_interest_paid_amount": ${ currency(self_empl_other_interest_paid_amount) }
       - "self_empl_other_exp4_descr": ${ self_empl_other_exp4_descr }
       - "self_empl_other_exp4_amount": ${ currency(self_empl_other_exp4_amount) }
       - "self_empl_other_exp5_amount": ${ currency(self_empl_other_exp5_amount) }
