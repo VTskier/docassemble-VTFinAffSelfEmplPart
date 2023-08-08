@@ -5,6 +5,9 @@
 #I need to add up the "other expenses" for the form 
 #I did not work on the review screen
 #When I edit something in the review screen, the math does not get updated in the Net Income screen I made or the PDF
+#**Your monthly net income**: ${ currency(self_employed_net_income_monthly_amount) }
+
+#sum([ expense.amount for expense in self_empl_other_expense ])
 
 ---
 include:
@@ -93,6 +96,9 @@ code: |
   set_progress(60)
   net_income
   interview_order_vtfinaffselfemplpart = True
+---
+code: |
+  self_empl_other_expense[i].times_per_year = 12
 ---
 ###################### Main order ######################
 comment: |
@@ -310,7 +316,8 @@ fields:
     required: false
 ---
 objects:
-  - self_empl_other_expense: DAList.using(object_type=DAObject, complete_attribute="amount")
+  #- self_empl_other_expense: DAList.using(object_type=DAObject, complete_attribute="amount")
+  - self_empl_other_expense: ALExpenseList
 ---
 id: Gather other expenses
 question: |
@@ -318,7 +325,7 @@ question: |
 subquestion: |
   Other expenses
 fields:
-  - "Do you have another business expense to describe?": self_empl_other_expense.there_are_any
+  - "Do you have another business expenses to describe?": self_empl_other_expense.there_are_any
     datatype: yesnoradio
     input type: radio
     choices:
@@ -331,9 +338,9 @@ question: |
 subquestion: |
   We'll create a list of the other expenses -- one at a time.
 fields:
-  - Describe the expense in a word or two: self_empl_other_expense[i].description
+  - Describe the expense in a word or two: self_empl_other_expense[i].source
     maxlength: 20
-  - How much is the expense each month?: self_empl_other_expense[i].amount
+  - How much is the expense each month?: self_empl_other_expense[i].value
     datatype: currency
     min: 0
 ---
@@ -344,7 +351,7 @@ subquestion: |
   You have told us about these:
   
   % for item in self_empl_other_expense:
-    * ${ item.description }
+    * ${ item.source }
   % endfor
 fields:
   - Are there any other expenses?: self_empl_other_expense.there_is_another
@@ -433,7 +440,7 @@ subquestion: |
   
   Bad debt, taxes and other interest expenses:
   
-  Other expenses: ${ currency(self_empl_other_expense) }
+  Other expenses: ${ currency(self_empl_other_expense.total(times_per_year = 12)) }
   
   **Total monthly expenses**: ${ currency(self_employed_expenses_monthly_amount) }
   <hr>
@@ -441,8 +448,9 @@ subquestion: |
   **Gross monthly sales**: ${ currency(self_empl_gross_sales_monthly_amount) }
   <hr>  
   
-  **Your monthly net income**: ${ currency(self_employed_net_income_monthly_amount) }
+  
 
+  ${self_employed_expenses_monthly_amount}
 ---
 mandatory: True
 code: |
@@ -464,10 +472,20 @@ code: |
 ---
 mandatory: True
 code: |   
-  total = self_empl_gross_sales_monthly_amount
-  total -= self_employed_expenses_monthly_amount
-  self_employed_net_income_monthly_amount = total
-
+  #total = self_empl_gross_sales_monthly_amount
+  #total -= self_employed_expenses_monthly_amount
+  #self_employed_net_income_monthly_amount = total
+  self_employed_net_income_monthly_amount = 100
+---
+template: self_employed_expenses_monthly_amount
+content: | 
+  <%
+  amount1 = sum_if_defined('self_empl_cgs_amount','self_empl_office_equipment_expenses')
+  amount2 = self_empl_other_expense.total(times_per_year = 12)
+  total = amount1 + amount2
+  %>
+  ${ currency(total) }
+  
 ---
 #Wages and other employee expenses
 #self_empl_wages_paid_amount
@@ -508,9 +526,9 @@ event: review_vtfinaffselfemplpart
 question: |
   Review your answers
 review:
-  - Edit:
-        - recompute:
-            - self_employed_net_income_monthly_amount  
+  #- Edit:
+  #      - recompute:
+  #          - self_employed_net_income_monthly_amount  
   - Edit: self_empl_gross_sales_monthly_amount
     button: |
       **Gross sales**:
@@ -635,14 +653,14 @@ review:
     button: |
       **Amount**:
       ${ currency(self_empl_insur_not_health2_amount) }
-  - Edit: self_empl_other_expense[0].description
+  - Edit: self_empl_other_expense[0].source
     button: |
       **Other expense**:
-      ${ self_empl_other_expense[0].description }
-  - Edit: self_empl_other_expense[0].amount
+      ${ self_empl_other_expense[0].source }
+  - Edit: self_empl_other_expense[0].value
     button: |
       **Amount**:
-      ${ currency(self_empl_other_expense[0].amount) }
+      ${ currency(self_empl_other_expense[0].value) }
   - Edit: self_empl_interest_paid_mort_amount
     button: |
       **Interest paid on mortgage**:
@@ -798,10 +816,10 @@ attachment:
       - "self_empl_insur_not_health2_amount": ${ currency(self_empl_insur_not_health2_amount) }
       - "self_empl_other_interest_paid_amount": ${ currency(self_empl_other_interest_paid_amount) }
       - "self_empl_interest_paid_mort_amount": ${ currency(self_empl_interest_paid_mort_amount) }
-      - "self_empl_other_exp1_descr": ${ self_empl_other_expense[0].description }
-      - "self_empl_other_exp1_amount": ${ currency(self_empl_other_expense[0].amount) }
-      - "self_empl_other_exp2_descr": ${ self_empl_other_expense[1].description }
-      - "self_empl_other_exp2_amount": ${ currency(self_empl_other_expense[1].amount) }
+      - "self_empl_other_exp1_descr": ${ self_empl_other_expense[0].source }
+      #- "self_empl_other_exp1_amount": ${ currency(self_empl_other_expense[0].value) }
+      #- "self_empl_other_exp2_descr": ${ self_empl_other_expense[1].source }
+      #- "self_empl_other_exp2_amount": ${ currency(self_empl_other_expense[1].value) }
       - "self_empl_other_exp3_descr": ${ self_empl_other_exp3_descr }
       - "self_empl_other_exp3_amount": ${ currency(self_empl_other_exp3_amount) }
       - "self_empl_other_exp4_descr": ${ self_empl_other_exp4_descr }
