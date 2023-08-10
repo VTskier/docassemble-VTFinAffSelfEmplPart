@@ -428,7 +428,7 @@ subquestion: |
   <hr>
   Cost of goods sold: ${ currency(self_empl_cgs_amount) }
   
-  Office and equipment expenses: ${ currency(self_empl_office_equipment_expenses ) }
+  Office and equipment expenses: ${ currency(sum_if_defined(*self_empl_office_equipment_expenses)) }
   
   Wages and other employee expenses:
   
@@ -442,7 +442,7 @@ subquestion: |
   
   Other expenses: ${ currency(self_empl_other_expense.total(times_per_year = 12)) }
   
-  **Total monthly expenses**: ${ currency(self_employed_expenses_monthly_amount) }
+  **Total monthly expenses**: ${ self_employed_expenses_monthly_amount }
   <hr>
   
   **Gross monthly sales**: ${ currency(self_empl_gross_sales_monthly_amount) }
@@ -454,7 +454,9 @@ subquestion: |
 ---
 mandatory: True
 code: |
-  self_empl_office_equipment_expenses = sum_if_defined('self_empl_rent_amount',
+  # This list won't ever get changed, so we don't have to worry about
+  # updating this when users edit their answers. It can be summed later.
+  self_empl_office_equipment_expenses = ['self_empl_rent_amount',
       'self_empl_interest_paid_mort_amount',
       'self_empl_equip_amount',
       'self_empl_depreciation_amount',
@@ -463,26 +465,34 @@ code: |
       'self_empl_depletion_amount',
       'self_empl_utilities_amount',
       'self_empl_office_exp_amount',
-      'self_empl_supplies_amount')
+      'self_empl_supplies_amount']
 ---
 mandatory: True
 code: |
   self_employed_expenses_monthly_amount = sum_if_defined('self_empl_cgs_amount',
-      'self_empl_office_equipment_expenses')
+      sum_if_defined(*self_empl_office_equipment_expenses))
 ---
 mandatory: True
 code: |   
-  #total = self_empl_gross_sales_monthly_amount
-  #total -= self_employed_expenses_monthly_amount
-  #self_employed_net_income_monthly_amount = total
-  self_employed_net_income_monthly_amount = 100
+  total = self_empl_gross_sales_monthly_amount
+  total -= self_employed_expenses_monthly_amount
+  self_employed_net_income_monthly_amount = total
 ---
+# Just testing a proof of concept
+code: |
+  expense_list = [
+    self_empl_other_expense
+  ]
+---
+# Different ways to sum expenses.
+# Have to do `currency()` in here for some reason.
 template: self_employed_expenses_monthly_amount
 content: | 
   <%
-  amount1 = sum_if_defined('self_empl_cgs_amount','self_empl_office_equipment_expenses')
+  amount1 = sum_if_defined(*self_empl_office_equipment_expenses)
   amount2 = self_empl_other_expense.total(times_per_year = 12)
-  total = amount1 + amount2
+  amount2 = sum([ exp.total(times_per_year=12) for exp in expense_list ])
+  total = self_empl_cgs_amount + amount1 + float(amount2)
   %>
   ${ currency(total) }
   
