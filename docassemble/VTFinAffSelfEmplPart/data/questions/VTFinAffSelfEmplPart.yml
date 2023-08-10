@@ -91,7 +91,7 @@ code: |
   self_empl_advertising_amount
   set_progress(40)
   self_empl_insur_not_health1_descr
-  self_empl_bad_debt_amount
+  self_empl_debts[0].value
   self_empl_other_expense.gather()
   set_progress(60)
   net_income
@@ -296,21 +296,39 @@ fields:
     min: 0
     required: false
 ---
+objects: 
+  - self_empl_debts: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_debts[0].source = "Tax expenses"
+  self_empl_debts[0].times_per_year = 12
+---
+code: |
+  self_empl_debts[1].source = "Other interest paid"
+  self_empl_debts[1].times_per_year = 12  
+---
+code: |
+  self_empl_debts[2].source = "Bad debt"
+  self_empl_debts[2].times_per_year = 12
+  
+---
+
 id: Bad debt taxes and other interest paid
+
 question: |
   Monthly business expenses from self-employment
 subquestion: |
   Bad debt, taxes and other interest paid
 fields:
-  - "Tax expenses": self_empl_taxes_amount
+  - "Tax expenses": self_empl_debts[0].value
     datatype: currency
     min: 0
     required: false
-  - "Other interest paid": self_empl_other_interest_paid_amount
+  - "Other interest paid": self_empl_debts[1].value
     datatype: currency
     min: 0
     required: false
-  - "Bad debt": self_empl_bad_debt_amount
+  - "Bad debt": self_empl_debts[2].value
     datatype: currency
     min: 0
     required: false
@@ -438,19 +456,18 @@ subquestion: |
   
   Insurance (not health insurance) expenses:
   
-  Bad debt, taxes and other interest expenses:
+  Bad debt, taxes and other interest expenses: ${ currency(self_empl_debts.total(times_per_year = 12)) }
   
   Other expenses: ${ currency(self_empl_other_expense.total(times_per_year = 12)) }
   
-  **Total monthly expenses**: ${ self_employed_expenses_monthly_amount }
+  **Total monthly expenses**: ${ currency(str(self_employed_expenses_monthly_amount)) }
   <hr>
   
   **Gross monthly sales**: ${ currency(self_empl_gross_sales_monthly_amount) }
   <hr>  
   
-  
+   **Net income**: ${ currency(self_employed_net_income_monthly_amount) }
 
-  ${self_employed_expenses_monthly_amount}
 ---
 mandatory: True
 code: |
@@ -467,21 +484,22 @@ code: |
       'self_empl_office_exp_amount',
       'self_empl_supplies_amount']
 ---
-mandatory: True
-code: |
-  self_employed_expenses_monthly_amount = sum_if_defined('self_empl_cgs_amount',
-      sum_if_defined(*self_empl_office_equipment_expenses))
+#mandatory: True
+#code: |
+#  self_employed_expenses_monthly_amount = sum_if_defined('self_empl_cgs_amount',
+#      sum_if_defined(*self_empl_office_equipment_expenses))
 ---
 mandatory: True
 code: |   
   total = self_empl_gross_sales_monthly_amount
-  total -= self_employed_expenses_monthly_amount
+  total -= float(str(self_employed_expenses_monthly_amount))
   self_employed_net_income_monthly_amount = total
 ---
-# Just testing a proof of concept
+# Adding up all the objects (sub-lists and expenses) that have a .total
 code: |
-  expense_list = [
-    self_empl_other_expense
+  al_expense_lists = [
+    self_empl_other_expense,
+    self_empl_debts
   ]
 ---
 # Different ways to sum expenses.
@@ -490,11 +508,10 @@ template: self_employed_expenses_monthly_amount
 content: | 
   <%
   amount1 = sum_if_defined(*self_empl_office_equipment_expenses)
-  amount2 = self_empl_other_expense.total(times_per_year = 12)
-  amount2 = sum([ exp.total(times_per_year=12) for exp in expense_list ])
+  amount2 = sum([ exp.total(times_per_year=12) for exp in al_expense_lists ])
   total = self_empl_cgs_amount + amount1 + float(amount2)
   %>
-  ${ currency(total) }
+  ${ total }
   
 ---
 #Wages and other employee expenses
@@ -738,7 +755,7 @@ review:
   - Edit: self_employed_expenses_monthly_amount
     button: |
       **Self-employed monthly expenses total**:
-      ${ currency(self_employed_expenses_monthly_amount) }
+      ${ currency(str(self_employed_expenses_monthly_amount)) }
   - Edit: self_employed_net_income_monthly_amount
     button: |
       **Self-employed monthly net income**:
@@ -842,7 +859,7 @@ attachment:
       - "self_empl_other_exp7_descr": ${ self_empl_other_exp7_descr }
       - "self_empl_other_exp7_amount": ${ currency(self_empl_other_exp7_amount) }
       - "self_empl_other_exp1_subtotal_amount": ${ currency(self_empl_other_expense) }
-      - "self_employed_expenses_monthly_amount": ${ currency(self_employed_expenses_monthly_amount) }
+      - "self_employed_expenses_monthly_amount": ${ currency(str(self_employed_expenses_monthly_amount)) }
       - "self_employed_net_income_monthly_amount": ${ currency(self_employed_net_income_monthly_amount) }
 
 
