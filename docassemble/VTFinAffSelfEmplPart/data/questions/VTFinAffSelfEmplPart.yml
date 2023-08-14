@@ -1,13 +1,10 @@
 #SELF-EMPLOYMENT WORKSHEET
-#I did not add up all the expense subsections yet for the Net Income and id: Your net income from self employment
-#Should I collect info in another way?
-#I need to add up the auto expenses for the form
-#I need to add up the "other expenses" for the form 
-#I did not work on the review screen
-#When I edit something in the review screen, the math does not get updated in the Net Income screen I made or the PDF
-#**Your monthly net income**: ${ currency(self_employed_net_income_monthly_amount) }
+#Need to make lists and add up all the expense subsections to get total expenses and Net Income
+#I need to add up the auto expenses to show on the form
+#I need to add up the "other expenses" to show on the form 
+#I need to work on the review screen
+#!!! When I edit something in the review screen, the math does not get updated in the Net Income screen I made or the PDF!!!
 
-#sum([ expense.amount for expense in self_empl_other_expense ])
 
 ---
 include:
@@ -83,22 +80,22 @@ code: |
   user_ask_role = "plaintiff"
   Selfemployment_worksheet
   self_empl_gross_sales_monthly_amount
-  self_empl_cgs_amount
-  self_empl_rent_amount
+  self_empl_cgs[0].value
+  self_empl_office[0].value
   set_progress(20)
-  self_empl_wages_paid_amount
-  self_empl_auto_insur_amount
-  self_empl_advertising_amount
+  self_empl_employees[0].value
+  self_empl_auto[0].value
+  self_empl_common_exp[0].value
   set_progress(40)
-  self_empl_insur_not_health1_descr
+  self_empl_other_insurances[0].value
   self_empl_debts[0].value
-  self_empl_other_expense.gather()
+  self_empl_other_expenses.gather()
   set_progress(60)
   net_income
   interview_order_vtfinaffselfemplpart = True
 ---
 code: |
-  self_empl_other_expense[i].times_per_year = 12
+  self_empl_other_expenses[i].times_per_year = 12
 ---
 ###################### Main order ######################
 comment: |
@@ -135,6 +132,15 @@ fields:
   - "Gross sales": self_empl_gross_sales_monthly_amount
     datatype: currency
     min: 0
+    
+    
+---
+objects: 
+  - self_empl_cgs: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_cgs[0].source = "Cost of goods sold"
+  self_empl_cgs[0].times_per_year = 12
 ---
 id: Cost of goods sold
 question: |
@@ -142,57 +148,137 @@ question: |
 subquestion: |
   Now we'll collect your monthly expenses from self-employment.
 fields:
-  - "Cost of goods sold": self_empl_cgs_amount
+  - "Cost of goods sold": self_empl_cgs[0].value
     datatype: currency
     min: 0
     required: false
 ---
+#mandatory: True
+#code: |
+#  # This list won't ever get changed, so we don't have to worry about
+#  # updating this when users edit their answers. It can be summed later.
+#  self_empl_office_equipment_expenses = ['self_empl_rent_amount',
+#      'self_empl_interest_paid_mort_amount',
+#      'self_empl_equip_amount',
+#      'self_empl_depreciation_amount',
+#      'self_empl_other_property_amount',
+#      'self_empl_repairs_amount',
+#      'self_empl_depletion_amount',
+#      'self_empl_utilities_amount',
+#      'self_empl_office_exp_amount',
+#      'self_empl_supplies_amount']
+---
+objects: 
+  - self_empl_office: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_office[0].source = "Rent paid"
+  self_empl_office[0].times_per_year = 12
+---
+code: |
+  self_empl_office[1].source = "Interest paid on business mortgage"
+  self_empl_office[1].times_per_year = 12
+---
+code: |
+  self_empl_office[2].source = "Equipment"
+  self_empl_office[2].times_per_year = 12
+---
+code: |
+  self_empl_office[3].source = "Depreciation"
+  self_empl_office[3].times_per_year = 12
+---
+code: |
+  self_empl_office[4].source = "Depletion"
+  self_empl_office[4].times_per_year = 12
+---
+code: |
+  self_empl_office[5].source = "Other property"
+  self_empl_office[5].times_per_year = 12
+---
+code: |
+  self_empl_office[6].source = "Repairs"
+  self_empl_office[6].times_per_year = 12
+---
+code: |
+  self_empl_office[7].source = "Utilities and phone"
+  self_empl_office[7].times_per_year = 12
+---
+code: |
+  self_empl_office[8].source = "Office expenses"
+  self_empl_office[8].times_per_year = 12
+---
+code: |
+  self_empl_office[9].source = "Supplies"
+  self_empl_office[9].times_per_year = 12
+---
+  
 id: Office and equipment expenses
 question: |
   Monthly business expenses from self-employment
 subquestion: |
   Office and equipment expenses
 fields:
-  - "Rent for your business location": self_empl_rent_amount
+  - "Rent paid for your business location": self_empl_office[0].value
     datatype: currency
     min: 0
     required: false
-  - "Interest paid on mortgage if you own your business location": self_empl_interest_paid_mort_amount
+  - "Interest paid on mortgage if you own your business location": self_empl_office[1].value
     datatype: currency
     min: 0
     required: false
-  - "Equipment": self_empl_equip_amount
+  - "Equipment": self_empl_office[2].value
     datatype: currency
     min: 0
     required: false
-  - "Depreciation": self_empl_depreciation_amount
+  - "Depreciation": self_empl_office[3].value
     datatype: currency
     min: 0
     required: false
-  - "Other property": self_empl_other_property_amount
+  - "Depletion": self_empl_office[4].value
     datatype: currency
     min: 0
     required: false
-  - "Repairs": self_empl_repairs_amount
+  - "Other property": self_empl_office[5].value
     datatype: currency
     min: 0
     required: false
-  - "Depletion": self_empl_depletion_amount
+  - "Repairs": self_empl_office[6].value
     datatype: currency
     min: 0
     required: false
-  - "Utilities and phone": self_empl_utilities_amount
+  - "Utilities and phone": self_empl_office[7].value
     datatype: currency
     min: 0
     required: false  
-  - "Office expenses": self_empl_office_exp_amount
+  - "Office expenses": self_empl_office[8].value
     datatype: currency
     min: 0
     required: false
-  - "Supplies": self_empl_supplies_amount
+  - "Supplies": self_empl_office[9].value
     datatype: currency
     min: 0
     required: false
+---
+objects: 
+  - self_empl_employees: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_employees[0].source = "Wages paid"
+  self_empl_employees[0].times_per_year = 12
+---
+code: |
+  self_empl_employees[1].source = "Commissions paid"
+  self_empl_employees[1].times_per_year = 12
+---
+code: |
+  self_empl_employees[2].source = "Employee benefit programs"
+  self_empl_employees[2].times_per_year = 12
+---
+code: |
+  self_empl_employees[3].source = "Pension paid"
+  self_empl_employees[3].times_per_year = 12
+---
+
 ---
 id: Wages and other employee expenses
 question: |
@@ -200,57 +286,101 @@ question: |
 subquestion: |
   Wages and other employee expenses
 fields:
-  - "Wages paid": self_empl_wages_paid_amount
+  - "Wages paid": self_empl_employees[0].value
     datatype: currency
     min: 0
     required: false
-  - "Commissions paid": self_empl_commiss_amount
+  - "Commissions paid": self_empl_employees[1].value
     datatype: currency
     min: 0
     required: false
-  - "Employee benefit programs": self_empl_employ_ben_prog_amount
+  - "Employee benefit programs": self_empl_employees[2].value
     datatype: currency
     min: 0
     required: false
-  - "Pension": self_empl_pension_amount
+  - "Pension paid": self_empl_employees[3].value
     datatype: currency
     min: 0
     required: false
 ---
+objects: 
+  - self_empl_auto: ALExpenseList.using(auto_gather = False, gathered = True)
+  - self_empl_travel: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_auto[0].source = "Auto insurance"
+  self_empl_auto[0].times_per_year = 12
+---
+code: |
+  self_empl_auto[1].source = "Auto maintenance"
+  self_empl_auto[1].times_per_year = 12
+---
+code: |
+  self_empl_auto[2].source = "Auto registration"
+  self_empl_auto[2].times_per_year = 12
+---
+code: |
+  self_empl_auto[3].source = "Gasoline"
+  self_empl_auto[3].times_per_year = 12
+---
+code: |
+  self_empl_travel[0].source = "Travel"
+  self_empl_travel[0].times_per_year = 12
+---
+code: |
+  self_empl_travel[1] = "Meals and Entertainment"
+  self_empl_travel[1].times_per_year = 12
+---
+
 id: Auto travel and meal expenses
 question: |
   Monthly business expenses from self-employment
 subquestion: |
   Auto, travel and meal expenses
 fields:
-  - "Auto insurance": self_empl_auto_insur_amount
+  - "Auto insurance": self_empl_auto[0].value
     datatype: currency
     min: 0
     required: false
-  - "Auto maintenance": self_employed_auto_maint_amount
+  - "Auto maintenance": self_empl_auto[1].value
     datatype: currency
     min: 0
     required: false
-  - "Auto registration": self_empl_auto_reg_amount
+  - "Auto registration": self_empl_auto[2].value
     datatype: currency
     min: 0
     required: false
-  - "Gas": self_empl_auto_gas_amount
+  - "Gasoline": self_empl_auto[3].value
     datatype: currency
     min: 0
     required: false
-#  - "Auto expenses subtotal": self_empl_auto_subtotal_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-  - "Travel": self_empl_travel_amount
+  - "Travel": self_empl_travel[0].value
     datatype: currency
     min: 0
     required: false
-  - "Meals and entertainment": self_empl_meals_amount
+  - "Meals and entertainment": self_empl_travel[1].value
     datatype: currency
     min: 0
     required: false
+---
+objects: 
+  - self_empl_common_exp: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_common_exp[0].source = "Advertising"
+  self_empl_common_exp[0].times_per_year = 12  
+---
+code: |
+  self_empl_common_exp[0].source = "Dues and publications"
+  self_empl_common_exp[0].times_per_year = 12  
+---
+code: |
+  self_empl_common_exp[0].source = "Legal and professional fees"
+  self_empl_common_exp[0].times_per_year = 12  
+---
+code: |
+  self_empl_common_exp[0].source = "Laundry and cleaning"
+  self_empl_common_exp[0].times_per_year = 12  
 ---
 id: Other common business expenses
 question: |
@@ -258,22 +388,33 @@ question: |
 subquestion: |
   Other common business expenses
 fields:
-  - "Advertising": self_empl_advertising_amount
+  - "Advertising": self_empl_common_exp[0].value
     datatype: currency
     min: 0
     required: false
-  - "Dues and publications": self_empl_dues_pubs_amount
+  - "Dues and publications": self_empl_common_exp[1].value
     datatype: currency
     min: 0
     required: false
-  - "Legal and professional fees": self_empl_legal_prof_amount
+  - "Legal and professional fees": self_empl_common_exp[2].value
     datatype: currency
     min: 0
     required: false
-  - "Laundry and cleaning": self_emp_cleaning_amount
+  - "Laundry and cleaning": self_empl_common_exp[3].value
     datatype: currency
     min: 0
     required: false
+---
+objects: 
+  - self_empl_other_insurances: ALExpenseList.using(auto_gather = False, gathered = True)
+---
+code: |
+  self_empl_other_insurances[0].source = "First other insurance"
+  self_empl_other_insurances[0].times_per_year = 12
+---
+code: |
+  self_empl_other_insurances[1].source = "Second other insurance"
+  self_empl_other_insurances[1].times_per_year = 12
 ---
 id: Insurance that is not health insurance
 question: |
@@ -281,17 +422,17 @@ question: |
 subquestion: |
   Insurance expense that is not health insurance
 fields:
-  - "Describe the insurance": self_empl_insur_not_health1_descr
+  - "Describe the insurance": self_empl_other_insurances[0].source
     maxlength: 30
     required: false
-  - "Amount": self_empl_insur_not_health1_amount
+  - "Amount": self_empl_other_insurances[0].value
     datatype: currency
     min: 0
     required: false
-  - "Describe the insurance": self_empl_insur_not_health2_descr
+  - "Describe the insurance": self_empl_other_insurances[1].source
     maxlength: 30
     required: false
-  - "Amount": self_empl_insur_not_health2_amount
+  - "Amount": self_empl_other_insurances[1].value
     datatype: currency
     min: 0
     required: false
@@ -300,7 +441,7 @@ objects:
   - self_empl_debts: ALExpenseList.using(auto_gather = False, gathered = True)
 ---
 code: |
-  self_empl_debts[0].source = "Tax expenses"
+  self_empl_debts[0].source = "Taxes paid"
   self_empl_debts[0].times_per_year = 12
 ---
 code: |
@@ -310,17 +451,14 @@ code: |
 code: |
   self_empl_debts[2].source = "Bad debt"
   self_empl_debts[2].times_per_year = 12
-  
 ---
-
 id: Bad debt taxes and other interest paid
-
 question: |
   Monthly business expenses from self-employment
 subquestion: |
   Bad debt, taxes and other interest paid
 fields:
-  - "Tax expenses": self_empl_debts[0].value
+  - "Taxes paid": self_empl_debts[0].value
     datatype: currency
     min: 0
     required: false
@@ -334,8 +472,7 @@ fields:
     required: false
 ---
 objects:
-  #- self_empl_other_expense: DAList.using(object_type=DAObject, complete_attribute="amount")
-  - self_empl_other_expense: ALExpenseList
+  - self_empl_other_expenses: ALExpenseList
 ---
 id: Gather other expenses
 question: |
@@ -343,7 +480,7 @@ question: |
 subquestion: |
   Other expenses
 fields:
-  - "Do you have another business expenses to describe?": self_empl_other_expense.there_are_any
+  - "Do you have another business expenses to describe?": self_empl_other_expenses.there_are_any
     datatype: yesnoradio
     input type: radio
     choices:
@@ -356,9 +493,9 @@ question: |
 subquestion: |
   We'll create a list of the other expenses -- one at a time.
 fields:
-  - Describe the expense in a word or two: self_empl_other_expense[i].source
+  - Describe the expense in a word or two: self_empl_other_expenses[i].source
     maxlength: 20
-  - How much is the expense each month?: self_empl_other_expense[i].value
+  - How much is the expense each month?: self_empl_other_expenses[i].value
     datatype: currency
     min: 0
 ---
@@ -368,73 +505,16 @@ question: |
 subquestion: |
   You have told us about these:
   
-  % for item in self_empl_other_expense:
+  % for item in self_empl_other_expenses:
     * ${ item.source }
   % endfor
 fields:
-  - Are there any other expenses?: self_empl_other_expense.there_is_another
+  - Are there any other expenses?: self_empl_other_expenses.there_is_another
     input type: radio
     choices:
       - Yes: True
       - No: False
----
 
-#  - "Do you have another business expense to describe?": self_empl_other_expense.there_are_any
-#    datatype: yesnoradio
-#  - "Describe the expense in a word or two": self_empl_other_exp.descr[0]
-#    maxlength: 24
-#    show if: self_empl_other_expense.there_are_any
-#    required: false    
-#  - "Amount paid per month": self_empl_other_exp.amount[0]
-#    datatype: currency
-#    min: 0
-#    show if: self_empl_another_expense.there_are_any
-#  - "Other expense": self_empl_other_exp2_descr
-#    maxlength: 24
-#    required: false
-#  - "Amount": self_empl_other_exp2_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Other expense": self_empl_other_exp3_descr
-#    maxlength: 24
-#    required: false
-#  - "Amount": self_empl_other_exp3_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Other expense": self_empl_other_exp4_descr
-#    maxlength: 24
-#    required: false
-#  - "Amount": self_empl_other_exp4_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Amount": self_empl_other_exp5_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Other expense": self_empl_other_exp5_descr
-#    maxlength: 24
-#    required: false
-#  - "Other expense": self_empl_other_exp6_descr
-#    maxlength: 24
-#    required: false
-#  - "Amount": self_empl_other_exp6_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Other expense": self_empl_other_exp7_descr
-#    maxlength: 24
-#    required: false
-#  - "Amount": self_empl_other_exp7_amount
-#    datatype: currency
-#    min: 0
-#    required: false
-#  - "Other expenses subtotal": self_empl_other_exp1_subtotal_amount
-#    datatype: currency
-#    min: 0
-#    required: false
 ---
 id: Your net income from self employment
 continue button field: net_income
@@ -444,21 +524,23 @@ subquestion: |
 
   We've added up the amounts you entered to figure out your net income from self employment. Use the Review your answers button to edit any of these amounts. WHEN I DID THAT, THE TOTALS ON THIS PAGE DID NOT CHANGE!
   <hr>
-  Cost of goods sold: ${ currency(self_empl_cgs_amount) }
+  Cost of goods sold: ${ currency(self_empl_cgs.total(times_per_year = 12)) }
   
-  Office and equipment expenses: ${ currency(sum_if_defined(*self_empl_office_equipment_expenses)) }
+  Office and equipment expenses:  ${ currency(self_empl_office.total(times_per_year = 12)) }
   
-  Wages and other employee expenses:
+  Wages and other employee expenses: ${ currency(self_empl_employees.total(times_per_year = 12)) }
   
-  Auto, travel and meal expenses:
+  Auto expenses: ${ currency(self_empl_auto.total(times_per_year = 12)) }
   
-  Other common business expenses:
+  Travel and meal expenses: ${ currency(self_empl_travel.total(times_per_year = 12)) }
   
-  Insurance (not health insurance) expenses:
+  Other common business expenses: ${ currency(self_empl_common_exp.total(times_per_year = 12)) }
+  
+  Insurance (not health insurance) expenses: ${ currency(self_empl_other_insurances.total(times_per_year = 12)) }
   
   Bad debt, taxes and other interest expenses: ${ currency(self_empl_debts.total(times_per_year = 12)) }
   
-  Other expenses: ${ currency(self_empl_other_expense.total(times_per_year = 12)) }
+  Other expenses: ${ currency(self_empl_other_expenses.total(times_per_year = 12)) }
   
   **Total monthly expenses**: ${ currency(str(self_employed_expenses_monthly_amount)) }
   <hr>
@@ -468,37 +550,25 @@ subquestion: |
   
    **Net income**: ${ currency(self_employed_net_income_monthly_amount) }
 
----
-mandatory: True
-code: |
-  # This list won't ever get changed, so we don't have to worry about
-  # updating this when users edit their answers. It can be summed later.
-  self_empl_office_equipment_expenses = ['self_empl_rent_amount',
-      'self_empl_interest_paid_mort_amount',
-      'self_empl_equip_amount',
-      'self_empl_depreciation_amount',
-      'self_empl_other_property_amount',
-      'self_empl_repairs_amount',
-      'self_empl_depletion_amount',
-      'self_empl_utilities_amount',
-      'self_empl_office_exp_amount',
-      'self_empl_supplies_amount']
+
+
 ---
 #mandatory: True
 #code: |
 #  self_employed_expenses_monthly_amount = sum_if_defined('self_empl_cgs_amount',
 #      sum_if_defined(*self_empl_office_equipment_expenses))
 ---
-mandatory: True
-code: |   
-  total = self_empl_gross_sales_monthly_amount
-  total -= float(str(self_employed_expenses_monthly_amount))
-  self_employed_net_income_monthly_amount = total
----
 # Adding up all the objects (sub-lists and expenses) that have a .total
 code: |
   al_expense_lists = [
-    self_empl_other_expense,
+    self_empl_cgs,
+    self_empl_office,
+    self_empl_employees,
+    self_empl_auto,
+    self_empl_travel,
+    self_empl_common_exp,
+    self_empl_other_insurances,
+    self_empl_other_expenses,
     self_empl_debts
   ]
 ---
@@ -507,20 +577,18 @@ code: |
 template: self_employed_expenses_monthly_amount
 content: | 
   <%
-  amount1 = sum_if_defined(*self_empl_office_equipment_expenses)
+  #amount1 = sum_if_defined(*self_empl_office_equipment_expenses)
   amount2 = sum([ exp.total(times_per_year=12) for exp in al_expense_lists ])
-  total = self_empl_cgs_amount + amount1 + float(amount2)
+  total = float(amount2)
   %>
   ${ total }
-  
 ---
-#Wages and other employee expenses
-#self_empl_wages_paid_amount
-#self_empl_commiss_amount
-#self_empl_employ_ben_prog_amount
-#self_empl_pension_amount
-
-
+# Figure the net income
+mandatory: True
+code: |   
+  total = self_empl_gross_sales_monthly_amount
+  total -= float(str(self_employed_expenses_monthly_amount))
+  self_employed_net_income_monthly_amount = total
 ---
 id: preview vtfinaffselfemplpart
 question: |
@@ -680,14 +748,14 @@ review:
     button: |
       **Amount**:
       ${ currency(self_empl_insur_not_health2_amount) }
-  - Edit: self_empl_other_expense[0].source
+  - Edit: self_empl_other_expenses[0].source
     button: |
       **Other expense**:
-      ${ self_empl_other_expense[0].source }
-  - Edit: self_empl_other_expense[0].value
+      ${ self_empl_other_expenses[0].source }
+  - Edit: self_empl_other_expenses[0].value
     button: |
       **Amount**:
-      ${ currency(self_empl_other_expense[0].value) }
+      ${ currency(self_empl_other_expenses[0].value) }
   - Edit: self_empl_interest_paid_mort_amount
     button: |
       **Interest paid on mortgage**:
@@ -843,10 +911,10 @@ attachment:
       - "self_empl_insur_not_health2_amount": ${ currency(self_empl_insur_not_health2_amount) }
       - "self_empl_other_interest_paid_amount": ${ currency(self_empl_other_interest_paid_amount) }
       - "self_empl_interest_paid_mort_amount": ${ currency(self_empl_interest_paid_mort_amount) }
-      - "self_empl_other_exp1_descr": ${ self_empl_other_expense[0].source }
-      #- "self_empl_other_exp1_amount": ${ currency(self_empl_other_expense[0].value) }
-      #- "self_empl_other_exp2_descr": ${ self_empl_other_expense[1].source }
-      #- "self_empl_other_exp2_amount": ${ currency(self_empl_other_expense[1].value) }
+      - "self_empl_other_exp1_descr": ${ self_empl_other_expenses[0].source }
+      #- "self_empl_other_exp1_amount": ${ currency(self_empl_other_expenses[0].value) }
+      #- "self_empl_other_exp2_descr": ${ self_empl_other_expenses[1].source }
+      #- "self_empl_other_exp2_amount": ${ currency(self_empl_other_expenses[1].value) }
       - "self_empl_other_exp3_descr": ${ self_empl_other_exp3_descr }
       - "self_empl_other_exp3_amount": ${ currency(self_empl_other_exp3_amount) }
       - "self_empl_other_exp4_descr": ${ self_empl_other_exp4_descr }
@@ -858,7 +926,7 @@ attachment:
       - "self_empl_other_exp6_amount": ${ currency(self_empl_other_exp6_amount) }
       - "self_empl_other_exp7_descr": ${ self_empl_other_exp7_descr }
       - "self_empl_other_exp7_amount": ${ currency(self_empl_other_exp7_amount) }
-      - "self_empl_other_exp1_subtotal_amount": ${ currency(self_empl_other_expense) }
+      - "self_empl_other_exp1_subtotal_amount": ${ currency(self_empl_other_expenses) }
       - "self_employed_expenses_monthly_amount": ${ currency(str(self_employed_expenses_monthly_amount)) }
       - "self_employed_net_income_monthly_amount": ${ currency(self_employed_net_income_monthly_amount) }
 
